@@ -213,13 +213,13 @@ public class Profile extends AppCompatActivity
             startActivity(profile);
             finish();
 
-        } /*else if (id == R.id.nav_restaurant_menu) {
+        } else if (id == R.id.nav_deliveries) {
 
-            Intent todayMenu = new Intent(MainActivity.this,TodayMenu.class);
+            Intent todayMenu = new Intent(Profile.this,DeliveriesActivity.class);
             startActivity(todayMenu);
             finish();
 
-        } else if (id == R.id.nav_reservations) {
+        } /*else if (id == R.id.nav_reservations) {
 
             Intent reservations = new Intent(MainActivity.this,Reservations.class);
             startActivity(reservations);

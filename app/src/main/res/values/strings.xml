@@ -19,5 +19,6 @@
     <string name="email_hint">Add your email adress</string>
     <string name="phone_hint">Add your phone number</string>
     <string name="description_hint">Let people know a bit more about yourself</string>
+    <string name="title_activity_deliveries">DeliveriesActivity</string>
 
 </resources>

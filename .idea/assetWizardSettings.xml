@@ -16,11 +16,28 @@
                             <entry key="actionbar">
                               <value>
                                 <PersistentState>
+                                  <option name="children">
+                                    <map>
+                                      <entry key="image">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="paddingPercent" value="5" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
+                                    </map>
+                                  </option>
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="D:\Théophile\Downloads\polito emblem resized 290.png" />
-                                      <entry key="outputName" value="logo_polito" />
+                                      <entry key="imageAsset" value="D:\Théophile\Downloads\android icons\icons8-checkmark-480.png" />
+                                      <entry key="outputName" value="green_check" />
+                                      <entry key="theme" value="CUSTOM" />
+                                      <entry key="themeColor" value="20c020" />
                                     </map>
                                   </option>
                                 </PersistentState>

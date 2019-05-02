@@ -1,5 +1,7 @@
 package com.example.thophile.deliveryman;
 
+import java.util.ArrayList;
+
 public class DeliveryData {
     private String restaurantAdress;
     private String deliveryAdress;
@@ -34,4 +36,13 @@ public class DeliveryData {
     public void setPickupTime(String pickupTime) {
         this.pickupTime = pickupTime;
     }
+
+    public ArrayList<String> toStringArrayList(){
+        ArrayList<String> array = new ArrayList<String>();
+        array.add(restaurantAdress);
+        array.add(deliveryAdress);
+        array.add(pickupTime);
+        return array;
+    }
+
 }

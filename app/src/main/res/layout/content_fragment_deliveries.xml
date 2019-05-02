@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/TV_restaurant_adress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Restaurant Adress"
+        android:layout_margin="8dp"/>
+
+    <TextView
+        android:id="@+id/TV_consumer_adress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="Consumer Adress"
+        android:layout_margin="8dp"/>
+
+    <ImageView
+        android:id="@+id/IV_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@drawable/right_arrow"
+        android:layout_margin="8dp"/>
+
+    <TextView
+        android:id="@+id/TV_delivery_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/IV_arrow"
+        android:text="Delivery Time"
+        android:layout_margin="8dp"/>
+
+    <Button
+        android:id="@+id/button_accept_delivery"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/TV_delivery_time"
+        android:layout_marginLeft="64dp"
+        android:background="@drawable/green_check"
+        />
+
+    <Button
+        android:id="@+id/button_refuse_delivery"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/TV_delivery_time"
+        android:layout_marginRight="64dp"
+        android:layout_alignParentRight="true"
+        android:background="@android:drawable/ic_delete" />
+
+
+</RelativeLayout>

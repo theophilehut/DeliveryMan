@@ -48,6 +48,7 @@ public class DeliveriesActivity extends AppCompatActivity
         fragmentDeliveryView = findViewById(R.id.fragment_delivery);
 
         //set up data persistency
+        currentDelivery = new DeliveryData(-1, "","","");
         if (getSharedPreferences("deliv", MODE_PRIVATE).contains("id")) {
             status = getSharedPreferences("deliv", MODE_PRIVATE).getInt("status", STATUSPROPOSAL);
             TVStatus.setText(Integer.toString(status));
@@ -67,7 +68,6 @@ public class DeliveriesActivity extends AppCompatActivity
         }
         else{
             status = STATUSWAITING;
-            currentDelivery = new DeliveryData(-1, "","","");
             fragmentDelivery.refuseDelivery();
         }
 

@@ -25,6 +25,13 @@
         android:textColor="#aaaaaa"
         />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery"
+        android:layout_margin="8dp"/>
+
     <fragment
         android:id="@+id/fragment_delivery"
         android:name="com.example.thophile.deliveryman.DeliveryFragment"
@@ -41,6 +48,14 @@
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/TV_deliveryman_status" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_delivery"
+        android:layout_margin="8dp"/>
 
 
 </android.support.constraint.ConstraintLayout>

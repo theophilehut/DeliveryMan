@@ -6,11 +6,19 @@ public class DeliveryData {
     private String restaurantAdress;
     private String deliveryAdress;
     private String pickupTime;
+    private int deliveryID;
 
-    public DeliveryData(String restaurantAdress, String deliveryAdress, String pickupTime) {
+    public DeliveryData(int deliveryID, String restaurantAdress, String deliveryAdress, String pickupTime) {
         this.restaurantAdress = restaurantAdress;
         this.deliveryAdress = deliveryAdress;
         this.pickupTime = pickupTime;
+    }
+
+    public DeliveryData (DeliveryData deliveryData){
+        this.deliveryID = deliveryData.deliveryID;
+        this.restaurantAdress = deliveryData.restaurantAdress;
+        this.deliveryAdress = deliveryData.deliveryAdress;
+        this.pickupTime = deliveryData.pickupTime;
     }
 
     public String getRestaurantAdress() {
@@ -35,6 +43,14 @@ public class DeliveryData {
 
     public void setPickupTime(String pickupTime) {
         this.pickupTime = pickupTime;
+    }
+
+    public int getDeliveryID() {
+        return deliveryID;
+    }
+
+    public void setDeliveryID(int deliveryID) {
+        this.deliveryID = deliveryID;
     }
 
     public ArrayList<String> toStringArrayList(){

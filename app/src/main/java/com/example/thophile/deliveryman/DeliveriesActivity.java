@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -27,6 +28,7 @@ public class DeliveriesActivity extends AppCompatActivity
 
     TextView TVStatus;
     DeliveryFragment fragmentDelivery;
+    View fragmentDeliveryView;
 
     public static int STATUSWAITING = 0;
     public static int STATUSPROPOSAL = 1;
@@ -41,7 +43,33 @@ public class DeliveriesActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        TVStatus = findViewById(R.id.TV_deliveryman_status);
+        fragmentDelivery = (DeliveryFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_delivery);
+        fragmentDeliveryView = findViewById(R.id.fragment_delivery);
 
+        //set up data persistency
+        if (getSharedPreferences("deliv", MODE_PRIVATE).contains("id")) {
+            status = getSharedPreferences("deliv", MODE_PRIVATE).getInt("status", STATUSPROPOSAL);
+            TVStatus.setText(Integer.toString(status));
+            if (status != STATUSWAITING) {
+                currentDelivery = new DeliveryData(getSharedPreferences("deliv", MODE_PRIVATE).getInt("id", 1),
+                        getSharedPreferences("deliv", MODE_PRIVATE).getString("restaurantAdress", "default"),
+                        getSharedPreferences("deliv", MODE_PRIVATE).getString("customerAdress", "default"),
+                        getSharedPreferences("deliv", MODE_PRIVATE).getString("deliveryTime", "default"));
+                if (status == STATUSPROPOSAL) {
+                    fragmentDelivery.newDeliveryProposal(currentDelivery);
+                } else if (status == STATUSACCEPTED) {
+                    fragmentDelivery.acceptDelivery();
+                }
+            } else {
+                fragmentDelivery.refuseDelivery();
+            }
+        }
+        else{
+            status = STATUSWAITING;
+            currentDelivery = new DeliveryData(-1, "","","");
+            fragmentDelivery.refuseDelivery();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -52,8 +80,7 @@ public class DeliveriesActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        TVStatus = findViewById(R.id.TV_deliveryman_status);
-        fragmentDelivery = (DeliveryFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_delivery);
+
     }
 
     @Override
@@ -64,6 +91,16 @@ public class DeliveriesActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+
+    public void saveState(){
+        Log.w("SAVE", "save performed");
+        getSharedPreferences("deliv",MODE_PRIVATE).edit().putInt("status",this.status).commit();
+        getSharedPreferences("deliv",MODE_PRIVATE).edit().putInt("id",currentDelivery.getDeliveryID()).commit();
+        getSharedPreferences("deliv",MODE_PRIVATE).edit().putString("customerAdress",currentDelivery.getDeliveryAdress()).commit();
+        getSharedPreferences("deliv",MODE_PRIVATE).edit().putString("restaurantAdress",currentDelivery.getRestaurantAdress()).commit();
+        getSharedPreferences("deliv",MODE_PRIVATE).edit().putString("deliveryTime",currentDelivery.getPickupTime()).commit();
     }
 
     @Override
@@ -80,7 +117,11 @@ public class DeliveriesActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        // TEMPORARY TESTING MENU ITEM
+        if (id == R.id.addpropmenu){
+            DeliveryData delivery1 = new DeliveryData(0,"The coffee hub \n Corso Duca degli Abruzzi ", "Politecnico \n Corso Duca degli Abruzzi", "10.30am");
+            receiveDeliveryProposal(delivery1);
+        }
         if (id == R.id.action_settings) {
             return true;
         }
@@ -114,17 +155,29 @@ public class DeliveriesActivity extends AppCompatActivity
         return true;
     }
 
+    public void receiveDeliveryProposal(DeliveryData deliveryData){
+        if (status == STATUSWAITING){
+            currentDelivery = deliveryData;
+            fragmentDelivery.newDeliveryProposal(deliveryData);
+            showNotification("Delivery Accepted", "Your delivery as been accepted. Go to restaurant adress ");
+        }
+        else{
+            //TODO : fill this with an impossibility notification to server
+        }
+    }
     public void updateStatus(int status){
         this.status = status;
-
         if (status == STATUSACCEPTED){
             this.TVStatus.setText(getText(R.string.status_sentence_accepted));
-            showNotification("Delivery Accepted", "Your delivery as been accepted. Go to restaurant adress ");
+            fragmentDeliveryView.setVisibility(View.VISIBLE);
         }else if (status == STATUSPROPOSAL ) {
             this.TVStatus.setText(getText(R.string.status_sentence_proposal));
+            fragmentDeliveryView.setVisibility(View.VISIBLE);
         }else if (status == STATUSWAITING){
             this.TVStatus.setText(getText(R.string.status_sentence_waiting));
+            fragmentDeliveryView.setVisibility(View.INVISIBLE);
         }
+        saveState();
     }
 
     // DEAL WITH NOTIFICATIONS

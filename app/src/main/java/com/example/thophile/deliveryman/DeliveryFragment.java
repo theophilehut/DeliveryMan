@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -19,11 +21,17 @@ import java.util.ArrayList;
  * Use the {@link DeliveryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DeliveryFragment extends Fragment {
+public class DeliveryFragment extends Fragment
+                                implements View.OnClickListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
 
     private ArrayList<String> mParam1;
+    private Button buttonAccept;
+    private Button buttonRefuse;
+    private TextView TVConsumerAdress;
+    private TextView TVRestaurantAdress;
+    private TextView TVDeliveryTime;
 
     private OnFragmentInteractionListener mListener;
 
@@ -52,22 +60,26 @@ public class DeliveryFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getStringArrayList(ARG_PARAM1);
         }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.content_fragment_deliveries, container, false);
+        View view = inflater.inflate(R.layout.content_fragment_deliveries, container, false);
+        buttonAccept = (Button) view.findViewById(R.id.button_accept_delivery);
+        buttonRefuse = (Button) view.findViewById(R.id.button_refuse_delivery);
+        TVConsumerAdress = (TextView) view.findViewById(R.id.TV_consumer_adress);
+        TVRestaurantAdress = (TextView) view.findViewById(R.id.TV_restaurant_adress);
+        TVDeliveryTime = (TextView) view.findViewById(R.id.TV_delivery_time);
+
+        buttonAccept.setOnClickListener(this);
+        buttonRefuse.setOnClickListener(this);
+        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+
+
 
     @Override
     public void onAttach(Context context) {
@@ -86,6 +98,40 @@ public class DeliveryFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.button_accept_delivery:
+                acceptDelivery();
+                buttonAccept.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.button_refuse_delivery:
+                refuseDelivery();
+                break;
+        }
+    }
+
+    public void newDeliveryProposal(DeliveryData deliveryData){
+        TVConsumerAdress.setText(deliveryData.getDeliveryAdress());
+        TVRestaurantAdress.setText(deliveryData.getRestaurantAdress());
+        TVDeliveryTime.setText(deliveryData.getPickupTime());
+
+        buttonAccept.setVisibility(View.VISIBLE);
+        buttonRefuse.setVisibility(View.VISIBLE);
+        //mListener.updateStatus(DeliveriesActivity.STATUSPROPOSAL);
+
+    }
+
+    public void acceptDelivery(){
+        buttonAccept.setVisibility(View.INVISIBLE);
+        buttonRefuse.setVisibility(View.INVISIBLE);
+        //mListener.updateStatus(DeliveriesActivity.STATUSACCEPTED);
+    }
+
+    public void refuseDelivery(){
+        mListener.updateStatus(DeliveriesActivity.STATUSWAITING);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -99,5 +145,6 @@ public class DeliveryFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+        void updateStatus(int status);
     }
 }

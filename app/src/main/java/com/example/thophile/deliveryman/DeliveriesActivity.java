@@ -1,5 +1,6 @@
 package com.example.thophile.deliveryman;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +23,10 @@ public class DeliveriesActivity extends AppCompatActivity
 
     TextView TVStatus;
     Fragment fragmentDelivery;
+
+    public static int STATUSWAITING = 0;
+    public static int STATUSPROPOSAL = 1;
+    public static int STATUSACCEPTED = 2;
 
     private int status;
     @Override
@@ -99,6 +104,18 @@ public class DeliveriesActivity extends AppCompatActivity
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void updateStatus(int status){
+        this.status = status;
+
+        if (status == STATUSACCEPTED){
+            this.TVStatus.setText(getText(R.string.status_sentence_accepted));
+        }else if (status == STATUSPROPOSAL ) {
+            this.TVStatus.setText(getText(R.string.status_sentence_proposal));
+        }else if (status == STATUSWAITING){
+            this.TVStatus.setText(getText(R.string.status_sentence_waiting));
+        }
     }
 
     @Override

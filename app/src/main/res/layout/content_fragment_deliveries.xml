@@ -60,5 +60,15 @@
         android:layout_alignParentRight="true"
         android:background="@android:drawable/ic_delete" />
 
+    <Button
+        android:id="@+id/button_map"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/TV_delivery_time"
+        android:background="@drawable/map_icon"
+        android:layout_margin="16dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
 
 </RelativeLayout>

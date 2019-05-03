@@ -21,10 +21,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class DeliveriesActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DeliveryFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        DeliveryFragment.OnFragmentInteractionListener{
 
     TextView TVStatus;
     DeliveryFragment fragmentDelivery;
@@ -122,6 +124,12 @@ public class DeliveriesActivity extends AppCompatActivity
             DeliveryData delivery1 = new DeliveryData(0,"The coffee hub \n Corso Duca degli Abruzzi ", "Politecnico \n Corso Duca degli Abruzzi", "10.30am");
             receiveDeliveryProposal(delivery1);
         }
+
+        if (id == R.id.menu_delivery_dismiss){
+            Log.w("CLICK", "Dismiss button clicked");
+            this.fragmentDelivery.refuseDelivery();
+            this.TVStatus.setText("Dismiss clicked");
+        }
         if (id == R.id.action_settings) {
             return true;
         }
@@ -146,9 +154,7 @@ public class DeliveriesActivity extends AppCompatActivity
             Intent todayMenu = new Intent(DeliveriesActivity.this,DeliveriesActivity.class);
             startActivity(todayMenu);
             finish();
-
         }
-
 
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -165,6 +171,7 @@ public class DeliveriesActivity extends AppCompatActivity
             //TODO : fill this with an impossibility notification to server
         }
     }
+
     public void updateStatus(int status){
         this.status = status;
         if (status == STATUSACCEPTED){
@@ -176,6 +183,7 @@ public class DeliveriesActivity extends AppCompatActivity
         }else if (status == STATUSWAITING){
             this.TVStatus.setText(getText(R.string.status_sentence_waiting));
             fragmentDeliveryView.setVisibility(View.INVISIBLE);
+
         }
         saveState();
     }

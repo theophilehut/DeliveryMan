@@ -34,10 +34,10 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="D:\Théophile\Downloads\android icons\icons8-checkmark-480.png" />
-                                      <entry key="outputName" value="green_check" />
+                                      <entry key="imageAsset" value="D:\Théophile\Downloads\android icons\map_icon.png" />
+                                      <entry key="outputName" value="map_icon" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="20c020" />
+                                      <entry key="themeColor" value="000000" />
                                     </map>
                                   </option>
                                 </PersistentState>

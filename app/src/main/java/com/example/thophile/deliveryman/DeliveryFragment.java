@@ -1,9 +1,11 @@
 package com.example.thophile.deliveryman;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ public class DeliveryFragment extends Fragment
     private ArrayList<String> mParam1;
     private Button buttonAccept;
     private Button buttonRefuse;
+    private Button buttonMap;
     private TextView TVConsumerAdress;
     private TextView TVRestaurantAdress;
     private TextView TVDeliveryTime;
@@ -69,12 +72,14 @@ public class DeliveryFragment extends Fragment
         View view = inflater.inflate(R.layout.content_fragment_deliveries, container, false);
         buttonAccept = (Button) view.findViewById(R.id.button_accept_delivery);
         buttonRefuse = (Button) view.findViewById(R.id.button_refuse_delivery);
+        buttonMap = (Button) view.findViewById(R.id.button_map);
         TVConsumerAdress = (TextView) view.findViewById(R.id.TV_consumer_adress);
         TVRestaurantAdress = (TextView) view.findViewById(R.id.TV_restaurant_adress);
         TVDeliveryTime = (TextView) view.findViewById(R.id.TV_delivery_time);
 
         buttonAccept.setOnClickListener(this);
         buttonRefuse.setOnClickListener(this);
+        buttonMap.setOnClickListener(this);
         return view;
     }
 
@@ -103,11 +108,14 @@ public class DeliveryFragment extends Fragment
         switch (v.getId()){
             case R.id.button_accept_delivery:
                 acceptDelivery();
-                buttonAccept.setVisibility(View.INVISIBLE);
                 break;
             case R.id.button_refuse_delivery:
                 refuseDelivery();
                 break;
+            case R.id.button_map:
+                startActivity(new Intent(getActivity(), GPSPageActivity.class));
+
+                Log.w("CLICK", "GPS button clicked");
         }
     }
 
@@ -118,6 +126,7 @@ public class DeliveryFragment extends Fragment
 
         buttonAccept.setVisibility(View.VISIBLE);
         buttonRefuse.setVisibility(View.VISIBLE);
+        buttonMap.setVisibility(View.VISIBLE);
         mListener.updateStatus(DeliveriesActivity.STATUSPROPOSAL);
 
     }
@@ -125,6 +134,8 @@ public class DeliveryFragment extends Fragment
     public void acceptDelivery(){
         buttonAccept.setVisibility(View.INVISIBLE);
         buttonRefuse.setVisibility(View.INVISIBLE);
+        buttonMap.setVisibility(View.VISIBLE);
+
         mListener.updateStatus(DeliveriesActivity.STATUSACCEPTED);
     }
 

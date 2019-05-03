@@ -22,7 +22,8 @@
         <activity
             android:name=".DeliveriesActivity"
             android:label="@string/title_activity_deliveries"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".GPSPageActivity"></activity>
     </application>
 
 </manifest>

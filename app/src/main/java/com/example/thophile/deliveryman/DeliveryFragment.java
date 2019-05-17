@@ -113,7 +113,7 @@ public class DeliveryFragment extends Fragment
                 refuseDelivery();
                 break;
             case R.id.button_map:
-                startActivity(new Intent(getActivity(), GPSPageActivity.class));
+                startActivity(new Intent(getActivity(), GPSActivity.class));
 
                 Log.w("CLICK", "GPS button clicked");
         }

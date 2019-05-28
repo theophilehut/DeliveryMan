@@ -97,6 +97,8 @@ public class Profile extends AppCompatActivity
 
         // update data from database
         updateDataFromDB(username);
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -183,15 +185,6 @@ public class Profile extends AppCompatActivity
                 et_desc.setEnabled(false);
                 et_phone.setEnabled(false);
                 cam.setClickable(false);
-                try {
-                    FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                    // Writing the bitmap to the output stream
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.flush();
-                    fos.close();
-                }catch (Exception exception){
-                    Log.e("ERROR",exception.getLocalizedMessage());
-                }
 
                 //Update the database
                     //Update data fields
@@ -201,22 +194,11 @@ public class Profile extends AppCompatActivity
                 deliveryManData.setDescription(et_desc.getText().toString());
                     //Get to the reference and update
                 DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen/");
-                Query queryRef = db.orderByChild("username").equalTo(username);
-                queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        dataSnapshot.getChildren().iterator().next().getRef().setValue(deliveryManData);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
+                DataManager.uploadData(db, username, deliveryManData);
                     //Add the picture
                 StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
                 if (bitmap != null){
-                    Uri uri = getImageUri(this, bitmap);
+                    Uri uri = DataManager.getImageUri(this, bitmap);
                     StorageReference storageReference = mStorageRef.child("profilePictures/" + username + "/" + FILENAME);
                     storageReference.putFile(uri);
                 }
@@ -301,10 +283,5 @@ public class Profile extends AppCompatActivity
         });
         builder.show();
     }
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Pic", null);
-        return Uri.parse(path);
-    }
+
 }

@@ -100,7 +100,7 @@ public class RegisterActivity extends AppCompatActivity {
                 //Add the picture
             StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
             if (bitmap != null){
-                Uri uri = getImageUri(this, bitmap);
+                Uri uri = DataManager.getImageUri(this, bitmap);
                 StorageReference storageReference = mStorageRef.child("profilePictures/" + getSharedPreferences("pref",MODE_PRIVATE).getString("username", "") + "/" + "profile_picture.png");
                 storageReference.putFile(uri);
             }
@@ -168,11 +168,5 @@ public class RegisterActivity extends AppCompatActivity {
         builder.show();
     }
 
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Pic", null);
-        return Uri.parse(path);
-    }
 
 }

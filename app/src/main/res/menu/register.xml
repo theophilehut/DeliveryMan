@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:icon="@android:drawable/ic_menu_save"
-        android:title="Confirm Registration"
         android:id="@+id/menuitem_confirm_registration"
+        android:icon="@drawable/green_check"
+        android:title="Confirm Registration"
         app:showAsAction="always" />
 
 </menu>

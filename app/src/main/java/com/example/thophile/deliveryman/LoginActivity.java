@@ -49,12 +49,11 @@ public class LoginActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(), "Username or password invalid", Toast.LENGTH_SHORT).show();
                 } else {
                     DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen");
-                    //TODO check if the logs are in DB
-                    String username = etUsername.getText().toString();
+                    final String username = etUsername.getText().toString();
                     final String password = etPassword.getText().toString();
                     Log.d("LOGIN", "Entering DB, " + username + ", " + password);
                     Query queryRef = db.orderByChild("username").equalTo(username);
-                    queryRef.addValueEventListener(new ValueEventListener() {
+                    queryRef.addListenerForSingleValueEvent(new ValueEventListener(){
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
 
@@ -66,6 +65,7 @@ public class LoginActivity extends AppCompatActivity
                             else if (snapshot.getChildren().iterator().next().child("password").getValue().equals(password)) {
                                 Intent profile = new Intent(LoginActivity.this, Profile.class);
                                 Toast.makeText(getApplicationContext(), "Registration Confirmed!", Toast.LENGTH_SHORT).show();
+                                getSharedPreferences("pref", MODE_PRIVATE).edit().putString("username", username).commit();
                                 startActivity(profile);
                                 finish();
                             } else {
@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity
                                 Log.d("LOGIN", "password expected : " + snapshot.getChildren().iterator().next().child("password").getValue());
                             }
                         }
+
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
@@ -86,13 +87,10 @@ public class LoginActivity extends AppCompatActivity
 
                 break;
             case R.id.button_register:
-                //TODO registerView
-                //TODO register username and password
                 if (etPassword.getText() == null || etUsername == null) {
                     Toast.makeText(getApplicationContext(), "Username or password invalid", Toast.LENGTH_SHORT).show();
                 } else {
                     DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen");
-                    //TODO check if the logs are in DB
                     final String username = etUsername.getText().toString();
                     final String password = etPassword.getText().toString();
                     Log.d("LOGIN", "Entering DB, " + username + ", " + password);

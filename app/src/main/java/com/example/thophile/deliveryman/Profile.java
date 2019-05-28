@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -27,11 +28,22 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Profile extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -48,6 +60,10 @@ public class Profile extends AppCompatActivity
     private String FILENAME = "profile_picture.png";
     private MenuItem save;
     private MenuItem edit;
+    private String username;
+
+    private DeliveryManData deliveryManData;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,42 +92,10 @@ public class Profile extends AppCompatActivity
 
         im = findViewById(R.id.imageView);
 
-        if (getSharedPreferences("pref", MODE_PRIVATE).contains("name")) {
-            et_name.setText(getSharedPreferences("pref", MODE_PRIVATE).getString("name", ""));
-            et_email.setText(getSharedPreferences("pref", MODE_PRIVATE).getString("email", ""));
-            et_desc.setText(getSharedPreferences("pref", MODE_PRIVATE).getString("desc", ""));
-            et_phone.setText(getSharedPreferences("pref", MODE_PRIVATE).getString("phone", ""));
+        username = getSharedPreferences("pref", MODE_PRIVATE).getString("username", "");
 
-            //if there is a bundle, use the saved image resource (if one is there)
-            //image=savedInstanceState.getParcelable("BitmapImage");
-            try {
-                File filePath = getFileStreamPath(FILENAME);
-                FileInputStream fi = new FileInputStream(filePath);
-                bitmap = BitmapFactory.decodeStream(fi);
-                // ois.readObject();
-                fi.close();
-                // ois.close();
-                image = bitmap;
-                im.setImageBitmap(image);
-
-            } catch (Exception ex) {
-
-                Log.d("ERROR", ex.getMessage());
-            }
-
-
-        } else if (savedInstanceState != null) {
-
-            et_name.setText(savedInstanceState.getString("name"));
-            et_email.setText(savedInstanceState.getString("email"));
-            et_desc.setText(savedInstanceState.getString("desc"));
-            et_phone.setText(savedInstanceState.getString("phone"));
-
-            //if there is a bundle, use the saved image resource (if one is there)
-            image = savedInstanceState.getParcelable("BitmapImage");
-            bitmap = image;
-            im.setImageBitmap(image);
-        }
+        // update data from database
+        updateDataFromDB(username);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -122,6 +106,28 @@ public class Profile extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
+    }
+
+    private void updateDataFromDB(String identifier) {
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen/");
+        Query queryRef = db.orderByChild("username").equalTo(identifier);
+        queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                deliveryManData = dataSnapshot.getChildren().iterator().next().getValue(DeliveryManData.class);
+                Log.d("PROFILE", "getting data from DB : " + deliveryManData.getName());
+
+                et_name.setText(deliveryManData.getName());
+                et_phone.setText(deliveryManData.getPhone());
+                et_email.setText(deliveryManData.getEmail());
+                et_desc.setText(deliveryManData.getDescription());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -152,10 +158,6 @@ public class Profile extends AppCompatActivity
                 et_email.setEnabled(true);
                 et_desc.setEnabled(true);
                 et_phone.setEnabled(true);
-                et_name.setText(getSharedPreferences("pref",MODE_PRIVATE).getString("name",""));
-                et_email.setText(getSharedPreferences("pref",MODE_PRIVATE).getString("email",""));
-                et_desc.setText(getSharedPreferences("pref",MODE_PRIVATE).getString("desc",""));
-                et_phone.setText(getSharedPreferences("pref",MODE_PRIVATE).getString("phone",""));
                 edit.setVisible(false);
                 save.setVisible(true);
                 cam.setClickable(true);
@@ -167,11 +169,6 @@ public class Profile extends AppCompatActivity
                 });
                 break;
             case R.id.Item02:
-                //this part is for the persistence , however the preference can only save primitive types so , only the string variables
-                getSharedPreferences("pref",MODE_PRIVATE).edit().putString("name",et_name.getText().toString()).commit();
-                getSharedPreferences("pref",MODE_PRIVATE).edit().putString("desc",et_desc.getText().toString()).commit();
-                getSharedPreferences("pref",MODE_PRIVATE).edit().putString("phone",et_phone.getText().toString()).commit();
-                getSharedPreferences("pref",MODE_PRIVATE).edit().putString("email",et_email.getText().toString()).commit();
                 edit.setVisible(true);
                 save.setVisible(false);
                 et_name.setEnabled(false);
@@ -179,22 +176,42 @@ public class Profile extends AppCompatActivity
                 et_desc.setEnabled(false);
                 et_phone.setEnabled(false);
                 cam.setClickable(false);
-                //getSharedPreferences("pref",MODE_PRIVATE).edit().putParcelable("BitmapImage", bitmap);
                 try {
                     FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-
-// Writing the bitmap to the output stream
+                    // Writing the bitmap to the output stream
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                     fos.flush();
                     fos.close();
-
-
-
-
                 }catch (Exception exception){
-
                     Log.e("ERROR",exception.getLocalizedMessage());
+                }
 
+                //Update the database
+                    //Update data fields
+                deliveryManData.setName(et_name.getText().toString());
+                deliveryManData.setPhone(et_phone.getText().toString());
+                deliveryManData.setEmail(et_email.getText().toString());
+                deliveryManData.setDescription(et_desc.getText().toString());
+                    //Get to the reference and update
+                DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen/");
+                Query queryRef = db.orderByChild("username").equalTo(username);
+                queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        dataSnapshot.getChildren().iterator().next().getRef().setValue(deliveryManData);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                    //Add the picture
+                StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
+                if (bitmap != null){
+                    Uri uri = getImageUri(this, bitmap);
+                    StorageReference storageReference = mStorageRef.child("profilePictures/" + username + "/" + FILENAME);
+                    storageReference.putFile(uri);
                 }
 
         }
@@ -219,22 +236,7 @@ public class Profile extends AppCompatActivity
             startActivity(todayMenu);
             finish();
 
-        } /*else if (id == R.id.nav_reservations) {
-
-            Intent reservations = new Intent(MainActivity.this,Reservations.class);
-            startActivity(reservations);
-            finish();
-
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }*/
-
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -251,10 +253,8 @@ public class Profile extends AppCompatActivity
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
             } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             //ImageView im=findViewById(R.id.imageView);
@@ -293,5 +293,11 @@ public class Profile extends AppCompatActivity
             }
         });
         builder.show();
+    }
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Pic", null);
+        return Uri.parse(path);
     }
 }

@@ -9,8 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,32 +20,24 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
 
     MenuItem confirm;
-    private ImageButton cam;
     private Bitmap bitmap;
-    private String FILENAME = "profile_picture.png";
     private EditText et_name;
     private EditText et_email;
     private EditText et_desc;
     private EditText et_phone;
     private ImageView im;
-
-    //TODO cancel registration
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        cam = findViewById(R.id.button2);
+        ImageButton cam = findViewById(R.id.button2);
         et_name = findViewById(R.id.et_name);
         et_email = findViewById(R.id.et_email);
         et_desc = findViewById(R.id.et_description);
@@ -76,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.register, menu);
-        confirm =(MenuItem)menu.findItem(R.id.menuitem_confirm_registration);
+        confirm = menu.findItem(R.id.menuitem_confirm_registration);
         return true;
     }
 
@@ -84,9 +74,9 @@ public class RegisterActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         //Only one callable item
 
-        if (et_name == null || et_name.getText().toString()==""
-                || et_phone == null || et_phone.getText().toString()==""
-                || et_email == null || et_email.getText().toString()==""){
+        if (et_name == null || et_name.getText().toString().equals("")
+                || et_phone == null || et_phone.getText().toString().equals("")
+                || et_email == null || et_email.getText().toString().equals("")){
             //If the profile has not the basic data, refuse it.
             Log.d("REG", "Data is not well filled to register");
             Log.d("REG", et_name.getText().toString());
@@ -94,47 +84,26 @@ public class RegisterActivity extends AppCompatActivity {
         }
         else{
             //If the profile is validated
-            // Register the data locally and on server
-            getSharedPreferences("pref",MODE_PRIVATE).edit().putString("name",et_name.getText().toString()).commit();
-            getSharedPreferences("pref",MODE_PRIVATE).edit().putString("phone",et_phone.getText().toString()).commit();
-            getSharedPreferences("pref",MODE_PRIVATE).edit().putString("email",et_email.getText().toString()).commit();
-
-            if (et_desc != null){
-                getSharedPreferences("pref",MODE_PRIVATE).edit().putString("desc",et_desc.getText().toString()).commit();
-            }
-
-            if(bitmap != null) {
-                try {
-                    FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.flush();
-                    fos.close();
-                } catch (Exception exception) {
-                    Log.e("ERROR", exception.getLocalizedMessage());
-                }
-            }
-            //TODO register the data on DB
+            // Register the data on server
+                //Create the data
             DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen");
             DatabaseReference refAdd = db.push();
-            HashMap<String, Object> newData = new HashMap<String, Object>();
-            newData.put("username", getSharedPreferences("pref",MODE_PRIVATE).getString("username", ""));
-            newData.put("password", getSharedPreferences("pref", MODE_PRIVATE).getString("password", ""));
-            newData.put("name", et_name.getText().toString());
-            newData.put("phone", et_phone.getText().toString());
-            newData.put("email", et_email.getText().toString());
-            newData.put("description", et_desc.getText().toString());
-            //Finally update the database
-            refAdd.updateChildren(newData);
-            //Add the picture
+            DeliveryManData newData = new DeliveryManData();
+            newData.setUsername(getSharedPreferences("pref",MODE_PRIVATE).getString("username", ""));
+            newData.setPassword(getSharedPreferences("pref", MODE_PRIVATE).getString("password", ""));
+            newData.setName(et_name.getText().toString());
+            newData.setPhone(et_phone.getText().toString());
+            newData.setEmail(et_email.getText().toString());
+            newData.setDescription(et_desc.getText().toString());
+                //Finally update the database
+            refAdd.setValue(newData);
+                //Add the picture
             StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
             if (bitmap != null){
                 Uri uri = getImageUri(this, bitmap);
-                StorageReference storageReference = mStorageRef.child("profilePictures/" + getSharedPreferences("pref",MODE_PRIVATE).getString("username", "") + "/" + FILENAME);
+                StorageReference storageReference = mStorageRef.child("profilePictures/" + getSharedPreferences("pref",MODE_PRIVATE).getString("username", "") + "/" + "profile_picture.png");
                 storageReference.putFile(uri);
             }
-
-                    //Finally update the database
-            refAdd.updateChildren(newData);
 
             //Launch the normal use
             Intent profile = new Intent(RegisterActivity.this, Profile.class);
@@ -156,10 +125,8 @@ public class RegisterActivity extends AppCompatActivity {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
             } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             //ImageView im=findViewById(R.id.imageView);

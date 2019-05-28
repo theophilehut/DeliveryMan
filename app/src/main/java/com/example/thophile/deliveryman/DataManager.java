@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -13,8 +14,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
@@ -46,11 +49,13 @@ public class DataManager {
         return Uri.parse(path);
     }
 
-    public static void uploadData(DatabaseReference ref, String username,final Object obj){
+    public static void uploadData(DatabaseReference ref, final String username,final Object obj){
         Query queryRef = ref.orderByChild("username").equalTo(username);
         queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d("DATAMANAGER", "snapshot to upload : " + dataSnapshot.toString() + " for username : " + username);
+
                 dataSnapshot.getChildren().iterator().next().getRef().setValue(obj);
             }
 
@@ -60,4 +65,22 @@ public class DataManager {
             }
         });
     }
+
+    public static DeliveryManData getDeliveryManFromDB(DatabaseReference ref, String identifier){
+        final DeliveryManData dm = new DeliveryManData();
+        Query queryRef = ref.orderByChild("username").equalTo(identifier);
+        queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                dm.updateDeliveryMan(dataSnapshot.getChildren().iterator().next().getValue(DeliveryManData.class));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        return dm;
+    }
+
 }

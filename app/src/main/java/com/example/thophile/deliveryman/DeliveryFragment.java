@@ -127,8 +127,6 @@ public class DeliveryFragment extends Fragment
         buttonAccept.setVisibility(View.VISIBLE);
         buttonRefuse.setVisibility(View.VISIBLE);
         buttonMap.setVisibility(View.VISIBLE);
-        mListener.updateStatus(DeliveriesActivity.STATUSPROPOSAL);
-
     }
 
     public void acceptDelivery(){
@@ -136,11 +134,11 @@ public class DeliveryFragment extends Fragment
         buttonRefuse.setVisibility(View.INVISIBLE);
         buttonMap.setVisibility(View.VISIBLE);
 
-        mListener.updateStatus(DeliveriesActivity.STATUSACCEPTED);
+        mListener.updateStatus(DeliveryManData.DM_STATUSONCOURSE);
     }
 
     public void refuseDelivery(){
-        mListener.updateStatus(DeliveriesActivity.STATUSWAITING);
+        mListener.updateStatus(DeliveryManData.DM_STATUSWAITING);
     }
 
     /**

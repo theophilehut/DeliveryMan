@@ -28,6 +28,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,7 +56,6 @@ public class Profile extends AppCompatActivity
     private EditText et_email;
     private EditText et_desc;
     private EditText et_phone;
-    private Bitmap image;
     private Bitmap bitmap;
     private ImageView im;
     private String FILENAME = "profile_picture.png";
@@ -128,8 +129,31 @@ public class Profile extends AppCompatActivity
 
             }
         });
+        // Add the image
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference imageRef = storageRef.child("profilePictures/" + username +"/profile_picture.png");
+        Log.d("PROFILE", "image path : " + imageRef.getPath());
+        loadImage(imageRef, im);
+
     }
 
+    public void loadImage(StorageReference imageRef, final ImageView view){
+        final long ONE_MEGABYTE = 1024 * 1024;
+        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                // Convert bytes data into a Bitmap
+                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                // Set the Bitmap data to the ImageView
+                view.setImageBitmap(bmp);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -144,8 +168,8 @@ public class Profile extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.profile, menu);
-        save =(MenuItem)menu.findItem(R.id.Item02);
-        edit =(MenuItem)menu.findItem(R.id.item01);
+        save = menu.findItem(R.id.Item02);
+        edit = menu.findItem(R.id.item01);
         save.setVisible(false);
         return true;
     }

@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity
                             }
                             else if (snapshot.getChildren().iterator().next().child("password").getValue().equals(password)) {
                                 Intent profile = new Intent(LoginActivity.this, Profile.class);
-                                Toast.makeText(getApplicationContext(), "Registration Confirmed!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Login successful!", Toast.LENGTH_SHORT).show();
                                 getSharedPreferences("pref", MODE_PRIVATE).edit().putString("username", username).commit();
                                 startActivity(profile);
                                 finish();

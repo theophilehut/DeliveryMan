@@ -133,27 +133,10 @@ public class Profile extends AppCompatActivity
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
         StorageReference imageRef = storageRef.child("profilePictures/" + username +"/profile_picture.png");
         Log.d("PROFILE", "image path : " + imageRef.getPath());
-        loadImage(imageRef, im);
+        DataManager.loadImage(imageRef, im);
 
     }
 
-    public void loadImage(StorageReference imageRef, final ImageView view){
-        final long ONE_MEGABYTE = 1024 * 1024;
-        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                // Convert bytes data into a Bitmap
-                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                // Set the Bitmap data to the ImageView
-                view.setImageBitmap(bmp);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
-    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

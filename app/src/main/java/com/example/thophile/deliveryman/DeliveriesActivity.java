@@ -7,6 +7,9 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -24,20 +27,26 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class DeliveriesActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        DeliveryFragment.OnFragmentInteractionListener{
+        DeliveryFragment.OnFragmentInteractionListener,
+        View.OnClickListener {
 
 
     TextView TVStatus;
     DeliveryFragment fragmentDelivery;
     View fragmentDeliveryView;
+    Button buttonFinishDelivery;
 
-    private DeliveryData currentDelivery;
-    DeliveryManData dm;
+    private DeliveryManData dm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +58,38 @@ public class DeliveriesActivity extends AppCompatActivity
         TVStatus = findViewById(R.id.TV_deliveryman_status);
         fragmentDelivery = (DeliveryFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_delivery);
         fragmentDeliveryView = findViewById(R.id.fragment_delivery);
+        buttonFinishDelivery = findViewById(R.id.button_finishDelivery);
+        buttonFinishDelivery.setOnClickListener(this);
 
-        //set up data persistency
-        currentDelivery = new DeliveryData();
-        dm = new DeliveryManData();
         //get the currentDelivery;
         DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen");
         String username = getSharedPreferences("pref", MODE_PRIVATE).getString("username", "");
-        dm = DataManager.getDeliveryManFromDB(db, username);
-        currentDelivery = dm.getCurrentDelivery();
-        updateStatus(dm.getStatus());
+        Query queryRef = db.orderByChild("username").equalTo(username);
+        queryRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                dm = dataSnapshot.getChildren().iterator().next().getValue(DeliveryManData.class);
+                Log.d("DELACT", "snapshot got = " + dataSnapshot.toString());
+                Log.d("DELACT", "status delivery got = " + dm.getCurrentDelivery().getStatus());
+                Log.d("DELACT", "status deliveryman got = " + dm.getStatus());
+                switch(dm.getCurrentDelivery().getStatus()){
+                    case DeliveryData.STATUSPROPOSAL :
+                        dm.setStatus(DeliveryManData.DM_STATUSPROPOSAL);
+                        break;
+                    case DeliveryData.STATUSACCEPTED:
+                        dm.setStatus(DeliveryManData.DM_STATUSONCOURSE);
+                        break;
+                    default:
+                        dm.setStatus(DeliveryManData.DM_STATUSWAITING);
+                }
+                updateStatus(dm.getStatus());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -84,9 +115,9 @@ public class DeliveriesActivity extends AppCompatActivity
 
 
     public void saveState(){
-        Log.w("SAVE", "save performed");
         DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen");
-        DataManager.uploadData(db, "test", dm);
+        DataManager.uploadData(db, dm.getUsername(), dm);
+        Log.w("DELACT", "save performed");
         //TODO update the status of delivery for the other actors
     }
 
@@ -106,12 +137,14 @@ public class DeliveriesActivity extends AppCompatActivity
 
         // TEMPORARY TESTING MENU ITEM
         if (id == R.id.addpropmenu){
-            DeliveryData delivery1 = new DeliveryData("The coffee hub \n Corso Duca degli Abruzzi ", "Politecnico \n Corso Duca degli Abruzzi", "10.30am", DeliveryData.STATUSWAITING);
-            receiveDeliveryProposal(delivery1);
+            DeliveryData delivery1 = new DeliveryData("The coffee hub \n Corso Duca degli Abruzzi ", "Politecnico \n Corso Duca degli Abruzzi", "10.30am", DeliveryData.STATUSPROPOSAL);
+            dm.setCurrentDelivery(delivery1);
+            DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen");
+            DataManager.uploadData(db, dm.getUsername(), dm);
         }
 
         if (id == R.id.menu_delivery_dismiss){
-            Log.w("CLICK", "Dismiss button clicked");
+            Log.w("DELACT", "Dismiss button clicked");
             this.fragmentDelivery.refuseDelivery();
             this.TVStatus.setText("Dismiss clicked");
         }
@@ -148,40 +181,39 @@ public class DeliveriesActivity extends AppCompatActivity
 
     public void receiveDeliveryProposal(DeliveryData deliveryData){
         if (dm.getStatus() == DeliveryManData.DM_STATUSWAITING){
-            currentDelivery = deliveryData;
+            showNotification("Delivery Received", "You received a delivery request, check it on your app.");
             updateStatus(DeliveryManData.DM_STATUSPROPOSAL);
-            showNotification("Delivery Accepted", "Your delivery as been accepted. Go to restaurant adress ");
+
         }
         else{
             //TODO : fill this with an impossibility notification to server
-            currentDelivery = deliveryData;
-            updateStatus(DeliveryManData.DM_STATUSPROPOSAL);
-            showNotification("Delivery Accepted", "Your delivery as been accepted. Go to restaurant adress ");
 
         }
     }
 
     public void updateStatus(int status){
+        Log.d("DELACT", "Updating status");
         this.dm.setStatus(status);
         if (status == DeliveryManData.DM_STATUSONCOURSE){
             this.TVStatus.setText(getText(R.string.status_sentence_accepted));
+            fragmentDelivery.displayDelivery(dm.getCurrentDelivery());
             fragmentDeliveryView.setVisibility(View.VISIBLE);
-            currentDelivery.setStatus(DeliveryData.STATUSACCEPTED);
+            buttonFinishDelivery.setVisibility(View.VISIBLE);
 
-        }else if (status == DeliveryData.STATUSPROPOSAL ) {
+        }else if (status == DeliveryManData.DM_STATUSPROPOSAL ) {
             this.TVStatus.setText(getText(R.string.status_sentence_proposal));
+            fragmentDelivery.displayProposal(dm.getCurrentDelivery());
             fragmentDeliveryView.setVisibility(View.VISIBLE);
-            fragmentDelivery.newDeliveryProposal(this.currentDelivery);
-            currentDelivery.setStatus(DeliveryData.STATUSPROPOSAL);
-        }else if (status == DeliveryData.STATUSWAITING){
+            buttonFinishDelivery.setVisibility(View.INVISIBLE);
+
+        }else if (status == DeliveryManData.DM_STATUSWAITING){
             this.TVStatus.setText(getText(R.string.status_sentence_waiting));
             fragmentDeliveryView.setVisibility(View.INVISIBLE);
-            currentDelivery.setStatus(DeliveryData.STATUSWAITING);
+            buttonFinishDelivery.setVisibility(View.INVISIBLE);
+        }
 
-        }
-        if(status != -1){
-            saveState();
-        }
+        saveState();
+
     }
 
     // DEAL WITH NOTIFICATIONS
@@ -207,13 +239,25 @@ public class DeliveriesActivity extends AppCompatActivity
         mNotificationManager.notify(0, mBuilder.build());
     }
 
-    //GETTERS AND SETTERS
-
-    public DeliveryData getCurrentDelivery() {
-        return currentDelivery;
+    @Override
+    public void getFragmentInteraction(int output) {
+        if (output == DeliveryFragment.ACCEPTED){
+            dm.getCurrentDelivery().setStatus(DeliveryData.STATUSACCEPTED);
+            updateStatus(DeliveryManData.DM_STATUSONCOURSE);
+        }
+        else if (output == DeliveryFragment.REFUSED){
+            dm.getCurrentDelivery().setStatus(DeliveryData.STATUSINVALID);
+            updateStatus(DeliveryManData.DM_STATUSWAITING);
+        }
     }
 
-    public void setCurrentDelivery(DeliveryData currentDelivery) {
-        this.currentDelivery = new DeliveryData(currentDelivery);
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.button_finishDelivery:
+                dm.finishCurrentDelivery();
+                updateStatus(DeliveryManData.DM_STATUSWAITING);
+
+        }
     }
 }

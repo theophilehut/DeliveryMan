@@ -1,5 +1,6 @@
 package com.example.thophile.deliveryman;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,9 +36,11 @@ public class DeliveryManData {
     }
 
     public void finishCurrentDelivery(){
-        this.currentDelivery.setStatus(0);
-        this.pastDeliveries.add(this.currentDelivery);
         this.currentDelivery.setStatus(DeliveryData.STATUSFINISHED);
+        if (this.pastDeliveries == null){
+            pastDeliveries = new ArrayList<DeliveryData>();
+        }
+        this.pastDeliveries.add(this.currentDelivery);
     }
     public List<DeliveryData> getPastDeliveries() {
         return pastDeliveries;

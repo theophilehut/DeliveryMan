@@ -28,6 +28,9 @@ public class DeliveryFragment extends Fragment
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
 
+    public static int REFUSED = 0;
+    public static int ACCEPTED = 1;
+
     private ArrayList<String> mParam1;
     private Button buttonAccept;
     private Button buttonRefuse;
@@ -119,7 +122,7 @@ public class DeliveryFragment extends Fragment
         }
     }
 
-    public void newDeliveryProposal(DeliveryData deliveryData){
+    public void displayProposal(DeliveryData deliveryData){
         TVConsumerAdress.setText(deliveryData.getDeliveryAdress());
         TVRestaurantAdress.setText(deliveryData.getRestaurantAdress());
         TVDeliveryTime.setText(deliveryData.getPickupTime());
@@ -129,16 +132,23 @@ public class DeliveryFragment extends Fragment
         buttonMap.setVisibility(View.VISIBLE);
     }
 
-    public void acceptDelivery(){
+    public void displayDelivery(DeliveryData deliveryData){
+        TVConsumerAdress.setText(deliveryData.getDeliveryAdress());
+        TVRestaurantAdress.setText(deliveryData.getRestaurantAdress());
+        TVDeliveryTime.setText(deliveryData.getPickupTime());
+
         buttonAccept.setVisibility(View.INVISIBLE);
         buttonRefuse.setVisibility(View.INVISIBLE);
         buttonMap.setVisibility(View.VISIBLE);
+    }
 
-        mListener.updateStatus(DeliveryManData.DM_STATUSONCOURSE);
+
+    public void acceptDelivery(){
+        mListener.getFragmentInteraction(ACCEPTED);
     }
 
     public void refuseDelivery(){
-        mListener.updateStatus(DeliveryManData.DM_STATUSWAITING);
+        mListener.getFragmentInteraction(REFUSED);
     }
 
     /**
@@ -152,6 +162,6 @@ public class DeliveryFragment extends Fragment
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void updateStatus(int status);
+        void getFragmentInteraction(int status);
     }
 }

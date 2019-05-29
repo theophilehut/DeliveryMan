@@ -24,6 +24,12 @@ import java.io.ByteArrayOutputStream;
 
 public class DataManager {
 
+    public DeliveryManData dm;
+
+    public DataManager() {
+        dm = new DeliveryManData();
+    }
+
     public static void loadImage(StorageReference imageRef, final ImageView view){
         final long ONE_MEGABYTE = 1024 * 1024;
         imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
@@ -66,13 +72,18 @@ public class DataManager {
         });
     }
 
-    public static DeliveryManData getDeliveryManFromDB(DatabaseReference ref, String identifier){
-        final DeliveryManData dm = new DeliveryManData();
+
+
+    public DeliveryManData downloadDataFromDB(DatabaseReference ref, String identifier) {
         Query queryRef = ref.orderByChild("username").equalTo(identifier);
         queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dm.updateDeliveryMan(dataSnapshot.getChildren().iterator().next().getValue(DeliveryManData.class));
+                Log.d("DATA", "enter listener ");
+                dm = dataSnapshot.getChildren().iterator().next().getValue(DeliveryManData.class);
+                Log.d("DATA", "snapshot got = " + dataSnapshot.toString());
+                Log.d("DATA", "status got = " + dm.getCurrentDelivery().getStatus());
+                this.notify();
             }
 
             @Override
@@ -80,7 +91,7 @@ public class DataManager {
 
             }
         });
+        Log.d("DATA", "status got bis= " + dm.getCurrentDelivery().getStatus());
         return dm;
     }
-
 }

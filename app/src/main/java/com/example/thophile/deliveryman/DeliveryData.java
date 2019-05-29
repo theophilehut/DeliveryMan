@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class DeliveryData {
 
-    public static int STATUSINVALID = -1;
-    public static int STATUSWAITING = 0;
-    public static int STATUSPROPOSAL = 1;
-    public static int STATUSACCEPTED = 2;
-    public static int STATUSFINISHED = 3;
+    public final static  int STATUSINVALID = -1;
+    public final static int STATUSWAITING = 0;
+    public final static int STATUSPROPOSAL = 1;
+    public final static int STATUSACCEPTED = 2;
+    public final static int STATUSFINISHED = 3;
 
     private String restaurantAdress;
     private String deliveryAdress;

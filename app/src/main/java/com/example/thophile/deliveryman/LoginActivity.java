@@ -117,7 +117,6 @@ public class LoginActivity extends AppCompatActivity
                                 getSharedPreferences("pref",MODE_PRIVATE).edit().putString("password", password).commit();
                                 Intent registration = new Intent(LoginActivity.this, RegisterActivity.class);
                                 startActivity(registration);
-                                finish();
                             }
                         }
 

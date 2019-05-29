@@ -9,14 +9,8 @@
         android:title="Send proposal"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="101"
-        android:title="@string/action_settings"
+        android:id="@+id/goto_pastDeliveries"
+        android:orderInCategory="100"
+        android:title="Past Deliveries"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_delivery_dismiss"
-        android:icon="@android:drawable/ic_delete"
-        android:orderInCategory="102"
-        android:title="Dismiss All"
-        app:showAsAction="ifRoom" />
 </menu>

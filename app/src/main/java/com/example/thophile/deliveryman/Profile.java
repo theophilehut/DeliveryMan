@@ -223,7 +223,6 @@ public class Profile extends AppCompatActivity
 
             Intent todayMenu = new Intent(Profile.this,DeliveriesActivity.class);
             startActivity(todayMenu);
-            finish();
 
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

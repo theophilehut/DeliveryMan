@@ -143,13 +143,9 @@ public class DeliveriesActivity extends AppCompatActivity
             DataManager.uploadData(db, dm.getUsername(), dm);
         }
 
-        if (id == R.id.menu_delivery_dismiss){
-            Log.w("DELACT", "Dismiss button clicked");
-            this.fragmentDelivery.refuseDelivery();
-            this.TVStatus.setText("Dismiss clicked");
-        }
-        if (id == R.id.action_settings) {
-            return true;
+        if(id == R.id.goto_pastDeliveries){
+            Intent pastDel = new Intent(DeliveriesActivity.this,PastDeliveriesActivity.class);
+            startActivity(pastDel);
         }
 
         return super.onOptionsItemSelected(item);
@@ -165,13 +161,11 @@ public class DeliveriesActivity extends AppCompatActivity
 
             Intent profile = new Intent(DeliveriesActivity.this,Profile.class);
             startActivity(profile);
-            finish();
 
         } else if (id == R.id.nav_deliveries) {
 
             Intent todayMenu = new Intent(DeliveriesActivity.this,DeliveriesActivity.class);
             startActivity(todayMenu);
-            finish();
         }
 
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

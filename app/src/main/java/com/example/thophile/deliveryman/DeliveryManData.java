@@ -21,13 +21,13 @@ public class DeliveryManData {
     private int status;
 
     private DeliveryData currentDelivery;
-    private List<DeliveryData> pastDeliveries;
+    private ArrayList<DeliveryData> pastDeliveries;
 
     public void setCurrentDelivery(DeliveryData currentDelivery) {
         this.currentDelivery = currentDelivery;
     }
 
-    public void setPastDeliveries(List<DeliveryData> pastDeliveries) {
+    public void setPastDeliveries(ArrayList<DeliveryData> pastDeliveries) {
         this.pastDeliveries = pastDeliveries;
     }
 
@@ -42,7 +42,7 @@ public class DeliveryManData {
         }
         this.pastDeliveries.add(this.currentDelivery);
     }
-    public List<DeliveryData> getPastDeliveries() {
+    public ArrayList<DeliveryData> getPastDeliveries() {
         return pastDeliveries;
     }
 

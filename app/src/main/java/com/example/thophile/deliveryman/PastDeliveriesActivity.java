@@ -32,10 +32,8 @@ public class PastDeliveriesActivity extends AppCompatActivity {
         Log.d("PASTDEL", "recycler view : " + String.valueOf(recyclerView == null));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(PastDeliveriesActivity.this);
         recyclerView.setLayoutManager(linearLayoutManager);
-        CustomAdapter customAdapter = new CustomAdapter(PastDeliveriesActivity.this, deliveries);
-        recyclerView.setAdapter(customAdapter); // set the Adapter to RecyclerView
 
-        //get the currentDelivery;
+
         DatabaseReference db = FirebaseDatabase.getInstance().getReference("DeliveryMen");
         String username = getSharedPreferences("pref", MODE_PRIVATE).getString("username", "");
         Query queryRef = db.orderByChild("username").equalTo(username);
